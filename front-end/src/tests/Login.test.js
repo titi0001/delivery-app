@@ -85,6 +85,23 @@ describe('Tela de Login', () => {
   it('Verifica se colocado email e senha validos cadastrados no DB redireciona para tela de produtos', () => {
     const { history } = renderWithRouter(<Login />, '/customer/products');
 
+    const emailValid = 'zebirita@email.com';
+    const passwordValid = '$#zebirita#$';
+
+    const btnLogin = screen.getByRole('button', { name: /login/i });
+    const testEmail = screen.getByTestId('common_login__input-email');
+    const inputPassword = screen.getByTestId('common_login__input-password');
+
+    userEvent.type(testEmail, emailValid);
+    userEvent.type(inputPassword, passwordValid);
+    userEvent.click(btnLogin);
+
+    expect(history.location.pathname).toBe('/customer/products');
+  });
+
+  it('Verifica se colocado email e senha de pessoa administradora , redireciona para tela de administrador', () => {
+    const { history } = renderWithRouter(<Login />, '/admin/manage');
+
     const emailValid = 'adm@deliveryapp.com';
     const passwordValid = '--adm2@21!!--';
 
@@ -96,7 +113,24 @@ describe('Tela de Login', () => {
     userEvent.type(inputPassword, passwordValid);
     userEvent.click(btnLogin);
 
-    expect(history.location.pathname).toBe('/customer/products');
+    expect(history.location.pathname).toBe('/admin/manage');
+  });
+
+  it('Verifica se colocado email e senha de pessoa vendedora , redireciona para tela de vendedor', () => {
+    const { history } = renderWithRouter(<Login />, '/seller/orders');
+
+    const emailValid = 'fulana@deliveryapp.com';
+    const passwordValid = 'fulana@123';
+
+    const btnLogin = screen.getByRole('button', { name: /login/i });
+    const testEmail = screen.getByTestId('common_login__input-email');
+    const inputPassword = screen.getByTestId('common_login__input-password');
+
+    userEvent.type(testEmail, emailValid);
+    userEvent.type(inputPassword, passwordValid);
+    userEvent.click(btnLogin);
+
+    expect(history.location.pathname).toBe('/seller/orders');
   });
 
 });
