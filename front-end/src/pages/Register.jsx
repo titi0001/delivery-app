@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import { requestLogin, requestRegister } from '../services';
 
 function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isBtnDisabled, setIsBtnDisabled] = useState(true);
-  const [isUserNotValid, setisUserNotValid] = useState(false);
+  const [isUserNotValid, setIsUserNotValid] = useState(false);
   const { push } = useHistory();
 
   useEffect(() => {
     const seis = 6;
     const doze = 12;
     const regex = /\S+[@]\w+[.]\w+/gi;
+
     if (regex.test(email) && password.length >= seis && name.length >= doze) {
       setIsBtnDisabled(false);
     } else {
@@ -20,43 +22,17 @@ function Register() {
     }
   }, [email, password, name]);
 
-  const handleClick = async () => {
-    const response = await fetch('http://localhost:3001/register', {
-      method: 'POST',
-      mode: 'cors',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password, name }),
-    });
+  const handleCreateAccount = async () => {
+    const responseRegister = await requestRegister({ email, password, name });
+    const responseLogin = await requestLogin({ email, password });
+    const { token } = await responseLogin;
 
-    const responseLogin = await fetch('http://localhost:3001/login', {
-      method: 'POST',
-      mode: 'cors',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const { token } = await responseLogin.json();
-
-    localStorage.setItem('user', JSON.stringify({
-      name,
-      email,
-      role: 'customer',
-      token,
-    }));
+    localStorage
+      .setItem('user', JSON.stringify({ name, email, role: 'customer', token }));
 
     const numberError = 409;
-    const user = await response.json();
-    if (response.status === numberError) {
-      setisUserNotValid(true);
-      return;
-    }
-    if (user.role === 'customer') {
-      push('/customer/products');
-    }
+    if (responseRegister.status === numberError) setIsUserNotValid(true);
+    push('/customer/products');
   };
 
   return (
@@ -95,7 +71,7 @@ function Register() {
         </label>
         <button
           type="button"
-          onClick={ handleClick }
+          onClick={ handleCreateAccount }
           disabled={ isBtnDisabled }
           data-testid="common_register__button-register"
         >

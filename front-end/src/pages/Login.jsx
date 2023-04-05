@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { requestLogin } from '../services/api';
-// import useLocalStorage from '../hooks/useLocalStorage';
+import { requestLogin } from '../services';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -18,40 +17,29 @@ function Login() {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
+
     if (user?.email) {
       redirect(user);
     }
+
     const seis = 6;
     const regex = /\S+[@]\w+[.]\w+/gi;
+
     if (regex.test(email) && password.length >= seis) setIsBtnDisabled(false);
     else setIsBtnDisabled(true);
   }, [email, password, push]);
-  const handleClick = async () => {
-    // const response = await fetch('http://localhost:3001/login', {
-    //   method: 'POST',
-    //   mode: 'cors',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify({ email, password }),
-    // });
-    const response = await requestLogin({ email, password });
 
-    const result = await response.json();
-    if (result.message === 'User not found') {
+  const handleLogin = async () => {
+    try {
+      const response = await requestLogin({ email, password });
+      localStorage.setItem('user', JSON.stringify(response));
+
+      if (response.role === 'seller') push('/seller/orders');
+      if (response.role === 'administrator') push('/admin/manage');
+      push('/customer/products');
+    } catch (error) {
       setIsUserNotFound(true);
-      return;
     }
-    localStorage.setItem('user', JSON.stringify({
-      name: result.name,
-      email: result.email,
-      role: result.role,
-      token: result.token,
-    }));
-
-    if (result.role === 'seller') push('/seller/orders');
-    else if (result.role === 'administrator') push('/admin/manage');
-    else push('/customer/products');
   };
 
   const handleSubmit = async (e) => {
@@ -85,7 +73,7 @@ function Login() {
         </label>
         <button
           type="button"
-          onClick={ handleClick }
+          onClick={ handleLogin }
           disabled={ isBtnDisabled }
           data-testid="common_login__button-login"
         >
