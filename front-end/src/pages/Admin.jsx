@@ -42,14 +42,13 @@ function Admin() {
     } else {
       setErrorMessage('');
     }
-    console.log(newUserData.role);
 
     setFormComplete(newFormComplete);
   }, [newUserData]);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
-    console.log(newUserData.role);
+
     if (user?.email) {
       redirect(user);
     } else push('/login');

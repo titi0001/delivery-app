@@ -23,7 +23,6 @@ function SellersOrders() {
       if (findSeller) {
         const response = await fetch(`http://localhost:3001/seller/orders/${findSeller.id}`);
         const ordersBySeller = await response.json();
-        console.log(ordersBySeller);
         setOrders(ordersBySeller);
       }
     };
