@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import { requestLogin } from '../services/api';
 // import useLocalStorage from '../hooks/useLocalStorage';
 
 function Login() {
@@ -26,14 +27,15 @@ function Login() {
     else setIsBtnDisabled(true);
   }, [email, password, push]);
   const handleClick = async () => {
-    const response = await fetch('http://localhost:3001/login', {
-      method: 'POST',
-      mode: 'cors',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
+    // const response = await fetch('http://localhost:3001/login', {
+    //   method: 'POST',
+    //   mode: 'cors',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({ email, password }),
+    // });
+    const response = await requestLogin({ email, password });
 
     const result = await response.json();
     if (result.message === 'User not found') {
