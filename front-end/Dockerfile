@@ -10,5 +10,5 @@ COPY . .
 
 EXPOSE 3000
 
-ENTRYPOINT [ "npm", "run" ]
-CMD ["start"]
+ENTRYPOINT [ "npm", "start" ]
+

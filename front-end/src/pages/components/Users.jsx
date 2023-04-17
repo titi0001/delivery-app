@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import Context from '../../contextAPI/context';
+import { deleteUser, requestUser, setToken } from '../../services';
 
 const resolveError = 1;
-const type = 'application/json';
 
 function Users() {
   const { newUserRegisterByAdmin } = useContext(Context);
@@ -12,15 +12,9 @@ function Users() {
     const data = JSON.parse(localStorage.getItem('user'));
     const { token } = data;
     async function fetchUsers() {
-      const response = await fetch('http://localhost:3001/user', {
-        method: 'GET',
-        mode: 'cors',
-        headers: {
-          'Content-Type': type,
-          Authorization: token,
-        },
-      });
-      setUsers(await response.json());
+      setToken(token);
+      const response = await requestUser();
+      setUsers(await response);
     }
 
     fetchUsers();
@@ -31,15 +25,9 @@ function Users() {
     const { token } = data;
     async function fetchUsers() {
       if (newUserRegisterByAdmin) {
-        const response = await fetch('http://localhost:3001/user', {
-          method: 'GET',
-          mode: 'cors',
-          headers: {
-            'Content-Type': type,
-            Authorization: token,
-          },
-        });
-        setUsers(await response.json());
+        setToken(token);
+        const response = await requestUser();
+        setUsers(await response);
       }
     }
 
@@ -49,14 +37,10 @@ function Users() {
   const handleDeleteUser = async (id) => {
     const adminData = JSON.parse(localStorage.getItem('user'));
     const { token } = adminData;
-    await fetch(`http://localhost:3001/admin/delete/${id}`, {
-      method: 'DELETE',
-      mode: 'cors',
-      headers: {
-        'Content-Type': type,
-        Authorization: token,
-      },
-    });
+
+    setToken(token);
+    await deleteUser(id);
+
     const updatedUsers = users.filter((user) => user.id !== id);
     setUsers(updatedUsers);
   };
