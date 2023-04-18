@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import { requestOrdersById, requestOrdersByStatus } from '../services';
 
 export default function CustomerOrderDetails() {
   const [status, setStatus] = useState('');
@@ -24,21 +25,22 @@ export default function CustomerOrderDetails() {
     let soma = 0;
     await products.forEach((element) => {
       const { SaleProduct } = element;
-      soma += (SaleProduct.quantity * element.price);
+      soma += SaleProduct.quantity * element.price;
     });
     setTotalValue(soma);
     return soma;
   };
 
   const startPage = async () => {
-    const responseFetch = await fetch(`http://localhost:3001/customer/orders/${id}`, {
-      method: 'GET',
-      mode: 'cors',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    const result = await responseFetch.json();
+    // const responseFetch = await fetch(`http://localhost:3001/customer/orders/${id}`, {
+    //   method: 'GET',
+    //   mode: 'cors',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    // });
+    const result = await requestOrdersById(id);
+    // const result = await responseFetch;
     setObjSale(result);
     setArrayProducts(result.products);
     setSeller(result.seller.name);
@@ -48,13 +50,14 @@ export default function CustomerOrderDetails() {
   };
 
   const updatedStatus = async (newStatus) => {
-    await fetch(`http://localhost:3001/customer/orders/${newStatus}/${id}`, {
-      method: 'PATCH',
-      mode: 'cors',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    // await fetch(`http://localhost:3001/customer/orders/${newStatus}/${id}`, {
+    //   method: 'PATCH',
+    //   mode: 'cors',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    // });
+    await requestOrdersByStatus(newStatus);
     setStatus(newStatus);
   };
   useEffect(() => {
@@ -74,10 +77,8 @@ export default function CustomerOrderDetails() {
       <p data-testid="customer_order_details__element-order-details-label-order-date">
         {date}
       </p>
-      <p
-        data-testid="customer_order_details__element-order-details-label-delivery-status"
-      >
-        { status }
+      <p data-testid="customer_order_details__element-order-details-label-delivery-status">
+        {status}
       </p>
       <button
         data-testid="customer_order_details__button-delivery-check"
@@ -97,53 +98,39 @@ export default function CustomerOrderDetails() {
             <th>Sub-Total</th>
           </tr>
           <tbody>
-            { arrayProducts.map((element, index) => (
+            {arrayProducts.map((element, index) => (
               <tr key={ index }>
                 <td
-                  data-testid={
-                    `customer_order_details__element-order-table-item-number-${index}`
-                  }
+                  data-testid={ `customer_order_details__element-order-table-item-number-${index}` }
                 >
                   {element.id}
                 </td>
                 <td
-                  data-testid={
-                    `customer_order_details__element-order-table-name-${index}`
-                  }
+                  data-testid={ `customer_order_details__element-order-table-name-${index}` }
                 >
                   {element.name}
                 </td>
                 <td
-                  data-testid={
-                    `customer_order_details__element-order-table-quantity-${index}`
-                  }
+                  data-testid={ `customer_order_details__element-order-table-quantity-${index}` }
                 >
                   {element.SaleProduct.quantity}
-
                 </td>
                 <td
-                  data-testid={
-                    `customer_order_details__element-order-table-unit-price-${index}`
-                  }
+                  data-testid={ `customer_order_details__element-order-table-unit-price-${index}` }
                 >
                   {element.price}
                 </td>
                 <td
-                  data-testid={
-                    `customer_order_details__element-order-table-sub-total-${index}`
-                  }
+                  data-testid={ `customer_order_details__element-order-table-sub-total-${index}` }
                 >
                   {(element.SaleProduct.quantity * element.price).toFixed(2)}
                 </td>
               </tr>
-            )) }
+            ))}
           </tbody>
         </table>
-        <h3
-          data-testid="customer_order_details__element-order-total-price"
-        >
+        <h3 data-testid="customer_order_details__element-order-total-price">
           {totalValue.toFixed(2).replace('.', ',')}
-
         </h3>
       </div>
     </div>

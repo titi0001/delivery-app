@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import { requestFindUser, requestUser, setToken } from '../services';
 
 function CustomerOrders() {
   const [user] = useState(() => JSON.parse(localStorage.getItem('user')) || {});
@@ -13,24 +14,12 @@ function CustomerOrders() {
 
   useEffect(() => {
     const load = async () => {
-      const responseUser = await fetch('http://localhost:3001/user', {
-        method: 'GET',
-        mode: 'cors',
-      });
-      const users = await responseUser.json();
+      const users = await requestUser();
+      // const users = await responseUser;
       const findUser = users.find((e) => e.email === user.email);
-      const response = await fetch(
-        `http://localhost:3001/sale/${findUser.id}`,
-        {
-          method: 'GET',
-          mode: 'cors',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: user.token,
-          },
-        },
-      );
-      const allSales = await response.json();
+
+      setToken(user.token);
+      const allSales = await requestFindUser(findUser.id);
 
       setSales(allSales);
     };
@@ -48,7 +37,9 @@ function CustomerOrders() {
               onClick={ () => handleClick(element.id) }
               style={ { backgroundColor: 'transparent', border: 'none' } }
             >
-              <p data-testid={ `customer_orders__element-order-id-${element.id}` }>
+              <p
+                data-testid={ `customer_orders__element-order-id-${element.id}` }
+              >
                 {`Pedido ${element.id}`}
               </p>
               <p
@@ -59,10 +50,14 @@ function CustomerOrders() {
               <p
                 data-testid={ `customer_orders__element-order-date-${element.id}` }
               >
-                { `${String(new Date(element.saleDate)
-                  .getUTCDate()).padStart(2, '0')}/${String(new Date(element.saleDate)
-                  .getUTCMonth() + 1).padStart(2, '0')}/${new Date(element.saleDate)
-                  .getFullYear()}`}
+                {`${String(new Date(element.saleDate).getUTCDate()).padStart(
+                  2,
+                  '0',
+                )}/${String(
+                  new Date(element.saleDate).getUTCMonth() + 1,
+                ).padStart(2, '0')}/${new Date(
+                  element.saleDate,
+                ).getFullYear()}`}
               </p>
               <p
                 data-testid={ `customer_orders__element-card-price-${element.id}` }

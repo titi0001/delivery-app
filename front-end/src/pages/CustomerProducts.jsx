@@ -3,6 +3,7 @@ import { useHistory } from 'react-router-dom';
 import Context from '../contextAPI/context';
 import Navbar from './components/Navbar';
 import useLocalStorage from '../hooks/useLocalStorage';
+import { requestProducts, setToken } from '../services';
 
 function CustomerProducts() {
   const { state: user } = useLocalStorage('user', []);
@@ -13,21 +14,16 @@ function CustomerProducts() {
   const totalPrice = productsArray.map((item) => Number(item.totalValue));
 
   useEffect(() => {
-    setTotalValue(totalPrice.reduce((acc, current) => acc + current, 0).toFixed(2));
+    setTotalValue(
+      totalPrice.reduce((acc, current) => acc + current, 0).toFixed(2),
+    );
   }, [totalPrice]);
 
   useEffect(() => {
-    const { token } = user;
     const fetchProducts = async () => {
-      const response = await fetch('http://localhost:3001/products', {
-        method: 'GET',
-        mode: 'cors',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: token,
-        },
-      });
-      const products = await response.json();
+      setToken(user.token);
+      const products = await requestProducts();
+
       products.forEach((item) => {
         item.quantity = 0;
         item.totalValue = 0;
@@ -39,7 +35,8 @@ function CustomerProducts() {
 
   useEffect(() => {
     const cartProductsToAlter = productsArray
-      .filter((product) => product.quantity > 0).sort((a, b) => a.id - b.id);
+      .filter((product) => product.quantity > 0)
+      .sort((a, b) => a.id - b.id);
     setCartProducts(cartProductsToAlter);
   }, [productsArray, setCartProducts]);
 
@@ -82,7 +79,7 @@ function CustomerProducts() {
     <div>
       <Navbar />
       <main>
-        { productsArray.map((products) => (
+        {productsArray.map((products) => (
           <div key={ products.id }>
             <img
               src={ products.urlImage }
@@ -94,14 +91,15 @@ function CustomerProducts() {
             <h2
               data-testid={ `customer_products__element-card-title-${products.id}` }
             >
-              { products.name }
+              {products.name}
             </h2>
 
             <p
               data-testid={ `customer_products__element-card-price-${products.id}` }
             >
-              { `R$ ${parseFloat(products.price)
-                .toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` }
+              {`R$ ${parseFloat(products.price).toLocaleString('pt-BR', {
+                minimumFractionDigits: 2,
+              })}`}
             </p>
 
             <div>
@@ -132,7 +130,6 @@ function CustomerProducts() {
               >
                 +
               </button>
-
             </div>
           </div>
         ))}
@@ -144,13 +141,10 @@ function CustomerProducts() {
           disabled={ !disableButtton() }
           onClick={ () => history.push('/customer/checkout') }
         >
-          <p
-            data-testid="customer_products__checkout-bottom-value"
-          >
-            { `${
-              parseFloat(totalValue)
-                .toLocaleString('pt-BR', { minimumFractionDigits: 2 })
-            }`}
+          <p data-testid="customer_products__checkout-bottom-value">
+            {`${parseFloat(totalValue).toLocaleString('pt-BR', {
+              minimumFractionDigits: 2,
+            })}`}
           </p>
         </button>
       </footer>

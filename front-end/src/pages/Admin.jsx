@@ -66,16 +66,6 @@ function Admin() {
 
     const adminData = JSON.parse(localStorage.getItem('user'));
     const { token } = adminData;
-
-    // const newUser = await fetch('http://localhost:3001/admin/register', {
-    //   method: 'POST',
-    //   mode: 'cors',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     Authorization: token,
-    //   },
-    //   body: JSON.stringify(newUserData),
-    // });
     setToken(token);
     const newUser = await requestCreateUser(body);
 

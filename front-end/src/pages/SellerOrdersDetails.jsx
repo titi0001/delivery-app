@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import proptypes from 'prop-types';
 import Navbar from './components/Navbar';
+import { requestOrdersByDetails, requestOrdersByStatusAndId } from '../services';
 
 function SellerOrdersDetails({ match }) {
   // const [seller] = useState(() => JSON.parse(localStorage.getItem('user')) || {});
@@ -11,17 +12,18 @@ function SellerOrdersDetails({ match }) {
 
   useEffect(() => {
     const getInfo = async () => {
-      const response = await fetch(
-        `http://localhost:3001/seller/orders/details/${id}`,
-        {
-          method: 'GET',
-          mode: 'cors',
-          headers: {
-            'Content-type': 'application/json',
-          },
-        },
-      );
-      const result = await response.json();
+      // const response = await fetch(
+      //   `http://localhost:3001/seller/orders/details/${id}`,
+      //   {
+      //     method: 'GET',
+      //     mode: 'cors',
+      //     headers: {
+      //       'Content-type': 'application/json',
+      //     },
+      //   },
+      // );
+      // const result = await response.json();
+      const result = await requestOrdersByDetails(id);
       setSale(result[0]);
       setStatus(result[0].status);
       setProducts(result[1]);
@@ -39,13 +41,14 @@ function SellerOrdersDetails({ match }) {
   };
 
   const updatedStatus = async (newStatus) => {
-    await fetch(`http://localhost:3001/customer/orders/${newStatus}/${id}`, {
-      method: 'PATCH',
-      mode: 'cors',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    // await fetch(`http://localhost:3001/customer/orders/${newStatus}/${id}`, {
+    //   method: 'PATCH',
+    //   mode: 'cors',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    // });
+    await requestOrdersByStatusAndId(newStatus, id);
     setStatus(newStatus);
   };
 
@@ -59,10 +62,8 @@ function SellerOrdersDetails({ match }) {
       <p data-testid="seller_order_details__element-order-details-label-order-date">
         {formatDate(sale.saleDate)}
       </p>
-      <p
-        data-testid="seller_order_details__element-order-details-label-delivery-status"
-      >
-        {status }
+      <p data-testid="seller_order_details__element-order-details-label-delivery-status">
+        {status}
       </p>
       <button
         data-testid="seller_order_details__button-preparing-check"
@@ -91,7 +92,7 @@ function SellerOrdersDetails({ match }) {
           </tr>
         </thead>
         <tbody>
-          { products.map((e, index) => (
+          {products.map((e, index) => (
             <tr key={ index }>
               <td
                 data-testid={
@@ -101,9 +102,7 @@ function SellerOrdersDetails({ match }) {
                 {e.id}
               </td>
               <td
-                data-testid={
-                  `seller_order_details__element-order-table-name-${index}`
-                }
+                data-testid={ `seller_order_details__element-order-table-name-${index}` }
               >
                 {e.name}
               </td>
@@ -113,7 +112,6 @@ function SellerOrdersDetails({ match }) {
                 }
               >
                 {e.quantity}
-
               </td>
               <td
                 data-testid={
@@ -130,14 +128,11 @@ function SellerOrdersDetails({ match }) {
                 {(e.quantity * e.price).toFixed(2)}
               </td>
             </tr>
-          )) }
+          ))}
         </tbody>
       </table>
-      <h3
-        data-testid="seller_order_details__element-order-total-price"
-      >
+      <h3 data-testid="seller_order_details__element-order-total-price">
         {Number(sale.totalPrice).toFixed(2).replace('.', ',')}
-
       </h3>
     </div>
   );

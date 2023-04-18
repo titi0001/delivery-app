@@ -3,6 +3,8 @@ import { useHistory } from 'react-router-dom';
 import '../App.css';
 import Context from '../contextAPI/context';
 import useLocalStorage from '../hooks/useLocalStorage';
+import { requestUser } from '../services';
+// import { requestCreateSale, setToken } from '../services';
 
 const BASE = 'customer_checkout__element-order-table-';
 
@@ -21,11 +23,12 @@ function CustomerCheckout() {
 
   useEffect(() => {
     const load = async () => {
-      const response = await fetch('http://localhost:3001/user', {
-        method: 'GET',
-        mode: 'cors',
-      });
-      const findUsers = await response.json();
+      // const response = await fetch('http://localhost:3001/user', {
+      //   method: 'GET',
+      //   mode: 'cors',
+      // });
+      // const findUsers = await response.json();
+      const findUsers = await requestUser();
       setUsers(findUsers);
       const filterSellers = findUsers.filter((e) => e.role === 'seller');
       setSellers(filterSellers);
@@ -52,17 +55,19 @@ function CustomerCheckout() {
       deliveryNumber: number,
     };
 
-    const response = await fetch('http://localhost:3001/sale', {
-      method: 'POST',
-      mode: 'cors',
-      headers: {
-        'Content-type': 'application/json',
-        Authorization: user.token,
-      },
-      body: JSON.stringify([sale, cartProducts]),
-    });
+    // const response = await fetch('http://localhost:3001/sale', {
+    //   method: 'POST',
+    //   mode: 'cors',
+    //   headers: {
+    //     'Content-type': 'application/json',
+    //     Authorization: user.token,
+    //   },
+    //   body: JSON.stringify([sale, cartProducts]),
+    // });
+    setToken(user.token);
+    const { id } = await requestCreateSale({ sale, cartProducts });
 
-    const { id } = await response.json();
+    // const { id } = await response;
 
     push(`/customer/orders/${id}`);
   };
@@ -75,7 +80,7 @@ function CustomerCheckout() {
           <tr>
             <th>Item</th>
             <th>Descrição</th>
-            <th>Quantitade</th>
+            <th>Quantidade</th>
             <th>Valor Unitário</th>
             <th>Sub total</th>
             <th>Remover item</th>
@@ -84,15 +89,9 @@ function CustomerCheckout() {
         <tbody>
           {cartProducts.map((e, i) => (
             <tr key={ e.id }>
-              <td data-testid={ `${BASE}item-number-${i}` }>
-                {i + 1}
-              </td>
-              <td data-testid={ `${BASE}name-${i}` }>
-                {e.name}
-              </td>
-              <td data-testid={ `${BASE}quantity-${i}` }>
-                {e.quantity}
-              </td>
+              <td data-testid={ `${BASE}item-number-${i}` }>{i + 1}</td>
+              <td data-testid={ `${BASE}name-${i}` }>{e.name}</td>
+              <td data-testid={ `${BASE}quantity-${i}` }>{e.quantity}</td>
               <td data-testid={ `${BASE}unit-price-${i}` }>
                 {String(e.price).replace('.', ',')}
               </td>

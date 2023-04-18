@@ -36,7 +36,7 @@ function Login() {
 
       if (response.role === 'seller') push('/seller/orders');
       if (response.role === 'administrator') push('/admin/manage');
-      push('/customer/products');
+      if (response.role === 'customer') push('/customer/products');
     } catch (error) {
       setIsUserNotFound(true);
     }

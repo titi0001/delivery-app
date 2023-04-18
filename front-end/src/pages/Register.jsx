@@ -24,11 +24,12 @@ function Register() {
 
   const handleCreateAccount = async () => {
     const responseRegister = await requestRegister({ email, password, name });
-    const responseLogin = await requestLogin({ email, password });
-    const { token } = await responseLogin;
-
-    localStorage
-      .setItem('user', JSON.stringify({ name, email, role: 'customer', token }));
+    const { token } = await requestLogin({ email, password });
+    // const { token } = await responseLogin;
+    localStorage.setItem(
+      'user',
+      JSON.stringify({ name, email, role: 'customer', token }),
+    );
 
     const numberError = 409;
     if (responseRegister.status === numberError) setIsUserNotValid(true);
