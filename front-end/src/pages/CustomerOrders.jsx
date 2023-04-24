@@ -17,6 +17,7 @@ function CustomerOrders() {
       const users = await requestUser();
       // const users = await responseUser;
       const findUser = users.find((e) => e.email === user.email);
+      console.log(findUser);
 
       setToken(user.token);
       const allSales = await requestFindUser(findUser.id);

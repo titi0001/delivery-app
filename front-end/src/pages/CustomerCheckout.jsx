@@ -3,8 +3,7 @@ import { useHistory } from 'react-router-dom';
 import '../App.css';
 import Context from '../contextAPI/context';
 import useLocalStorage from '../hooks/useLocalStorage';
-import { requestUser } from '../services';
-// import { requestCreateSale, setToken } from '../services';
+import { requestCreateSale, setToken, requestUser } from '../services';
 
 const BASE = 'customer_checkout__element-order-table-';
 
@@ -23,11 +22,6 @@ function CustomerCheckout() {
 
   useEffect(() => {
     const load = async () => {
-      // const response = await fetch('http://localhost:3001/user', {
-      //   method: 'GET',
-      //   mode: 'cors',
-      // });
-      // const findUsers = await response.json();
       const findUsers = await requestUser();
       setUsers(findUsers);
       const filterSellers = findUsers.filter((e) => e.role === 'seller');
@@ -55,19 +49,10 @@ function CustomerCheckout() {
       deliveryNumber: number,
     };
 
-    // const response = await fetch('http://localhost:3001/sale', {
-    //   method: 'POST',
-    //   mode: 'cors',
-    //   headers: {
-    //     'Content-type': 'application/json',
-    //     Authorization: user.token,
-    //   },
-    //   body: JSON.stringify([sale, cartProducts]),
-    // });
+    const body = [sale, cartProducts];
     setToken(user.token);
-    const { id } = await requestCreateSale({ sale, cartProducts });
-
-    // const { id } = await response;
+    const response = await requestCreateSale(body);
+    const { id } = await response;
 
     push(`/customer/orders/${id}`);
   };
